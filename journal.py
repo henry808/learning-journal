@@ -47,10 +47,10 @@ def init_db():
 
 def main():
     """Create a configured wsgi app"""
+    # configuraton settings
     settings = {}
     settings['reload_all'] = os.environ.get('DEBUG', True)
     settings['debug_all'] = os.environ.get('DEBUG', True)
-    # ADD THIS  vvv
     settings['db'] = os.environ.get(
         'DATABASE_URL', 'dbname=learning_journal user=JustinKan'
     )
@@ -64,6 +64,8 @@ def main():
     )
     config.add_route('home', '/')
     config.scan()
+
+    # serve app
     app = config.make_wsgi_app()
     return app
 
