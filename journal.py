@@ -2,6 +2,7 @@ from contextlib import closing
 import psycopg2
 import os
 import logging
+import datetime
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.view import view_config
@@ -18,6 +19,11 @@ CREATE TABLE IF NOT EXISTS entries (
     created TIMESTAMP NOT NULL
 )
 """
+
+INSERT_ENTRY = """
+INSERT INTO entries (title, text, created) VALUES (%s, %s, %s)
+"""
+
 logging.basicConfig()
 log = logging.getLogger(__file__)
 
@@ -67,6 +73,13 @@ def close_connection(request):
         else:
             db.commit()
         request.db.close()
+
+
+def write_entry(request):
+    title = request.params.get('title', None)
+    text = request.params.get('text', None)
+    created = datetime.datetime.utcnow()
+    request.db.cursor().execute(INSERT_ENTRY, [title, text, created])
 
 
 def main():
