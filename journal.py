@@ -1,6 +1,6 @@
 from contextlib import closing
 import psycopg2
-import os
+
 import logging
 import datetime
 from pyramid.config import Configurator
@@ -30,11 +30,6 @@ SELECT id, title, text, created FROM entries ORDER BY created DESC
 
 logging.basicConfig()
 log = logging.getLogger(__file__)
-
-
-@view_config(route_name='home', renderer='string')
-def home(request):
-    return "Hello World"
 
 
 def connect_db(settings):
@@ -86,6 +81,12 @@ def write_entry(request):
     request.db.cursor().execute(INSERT_ENTRY, [title, text, created])
 
 
+# @view_config(route_name='home', renderer='string')
+# def home(request):
+#     return "Hello World"
+
+
+@view_config(route_name='home', renderer='templates/list.jinja2')
 def read_entries(request):
     """return a list of all entries as dicts"""
     cursor = request.db.cursor()
@@ -112,6 +113,7 @@ def main():
         settings=settings,
         session_factory=session_factory
     )
+    config.include('pyramid_jinja2')  # <-- ADD THIS LINE HERE
     config.add_route('home', '/')
     config.scan()
 
