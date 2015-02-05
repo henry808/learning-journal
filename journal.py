@@ -1,6 +1,6 @@
-from contextlib import closing
+# -*- coding: utf-8 -*-from contextlib import closing
 import psycopg2
-
+import os
 import logging
 import datetime
 from pyramid.config import Configurator
@@ -8,8 +8,7 @@ from pyramid.session import SignedCookieSessionFactory
 from pyramid.view import view_config
 from pyramid.events import NewRequest, subscriber
 from waitress import serve
-
-# -*- coding: utf-8 -*-
+from contextlib import closing
 
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS entries (
