@@ -1,12 +1,11 @@
 from lettuce import step
 from lettuce import world
 
-from journal import edit_entry
 from cryptacular.bcrypt import BCRYPTPasswordManager
 from pyramid import testing
 
 
-@step('check if authorized')
+@step('authorize test')
 def auth_req(step):
     manager = BCRYPTPasswordManager()
     settings = {
@@ -16,3 +15,15 @@ def auth_req(step):
     testing.setUp(settings=settings)
     req = testing.DummyRequest()
     return req
+
+
+
+
+"""
+@step('check if homepage')
+def
+"""
+
+@step('check if edit button is present')
+def see_edit_button(auth_req):
+
