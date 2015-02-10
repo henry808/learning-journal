@@ -1,10 +1,15 @@
 Feature: Edit Entry
     Implement a way to edit an existing entry
 
-    Scenario: Edit button is clicked from front page or detail page
-        Given the button
-        When I click the button
-        Then I go to an edit page
+    Scenario: Edit button is clicked from the homepage
+        Given authorized user and homepage
+        When I click the edit button
+        Then I get redirected to edit page
+
+    Scenario: Edit button is clicked from the detail page
+        Given authorized user and detail
+        When I click the edit button
+        Then I get redirected to edit page
 
     Scenario: Edit page loaded
         Given the edit page
@@ -20,9 +25,9 @@ Feature: Permalink
     Implement a way to go to detailed page of an entry with a link
 
     Scenario: Click permalink button
-        Given a permalink button
-        When I click the button
-        Then I should go to detailed page with url being the permalink
+        Given any user and homepage
+        When I click a permalink button
+        Then I get redirected to detailed page
 
 Feature: MarkDown
     Implement a way to MarkDown an entry to be able to make pretty
