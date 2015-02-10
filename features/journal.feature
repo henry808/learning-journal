@@ -2,7 +2,7 @@ Feature: Edit Entry
     Implement a way to edit an existing entry
 
     Scenario: Edit button is clicked from front page or detail page
-        Given the button
+        Given the edit button
         When I click the button
         Then I go to an edit page
 
