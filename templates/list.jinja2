@@ -25,7 +25,7 @@
     <div class="entry_body">
       {{ entry.text|safe }}
     </div>
-    <a href ="{{ request.route_url('detail') }}">
+    <a href ="{{ request.route_url('detail', id=entry.id)}}">
       <button type="button">permalink</button>
     </a>
     {% if request.authenticated_userid %}
