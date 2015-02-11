@@ -3,6 +3,7 @@ import psycopg2
 import os
 import logging
 import datetime
+import re
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.view import view_config
@@ -32,6 +33,10 @@ INSERT INTO entries (title, text, created) VALUES (%s, %s, %s)
 
 DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
+"""
+
+SELECT_SINGLE_ENTRY = """
+SELECT title, text, created FROM entries WHERE id=%s;
 """
 
 logging.basicConfig()
@@ -110,9 +115,11 @@ def read_entries(request):
 @view_config(route_name='detail', renderer='templates/detail.jinja2')
 def detail_view(request):
     """return a list of all entries as dicts"""
+    db_id = request.matchdict['id']
+    print "id: " + db_id  # remove this later
     cursor = request.db.cursor()
-    cursor.execute(DB_ENTRIES_LIST)
-    keys = ('id', 'title', 'text', 'created')
+    cursor.execute(SELECT_SINGLE_ENTRY, (db_id,))
+    keys = ('title', 'text', 'created')
     entries = [dict(zip(keys, row)) for row in cursor.fetchall()]
     return {'entries': entries}
 
@@ -191,8 +198,12 @@ def main():
     config.add_route('add', '/add')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
-    config.add_route('detail', '/detail')
+    config.add_route('detail', '/{id}')
+    #config.add_route('detail', '/detail')
+
     config.scan()
+
+    #<a href ="{{ request.route_url(entry.id)}}">
 
     # serve app
     app = config.make_wsgi_app()
