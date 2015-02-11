@@ -3,7 +3,6 @@ import psycopg2
 import os
 import logging
 import datetime
-import re
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.view import view_config
@@ -112,13 +111,25 @@ def read_entries(request):
     return {'entries': entries}
 
 
+@view_config(route_name='edit', renderer='templates/edit.jinja2')
+def edit_entry(request):
+    """return a list of all entries as dicts"""
+    id = request.matchdict['id']
+    print "edit id: " + id  # remove this later
+    cursor = request.db.cursor()
+    cursor.execute(SELECT_SINGLE_ENTRY, (id,))
+    keys = ('id', 'title', 'text', 'created')
+    entries = [dict(zip(keys, row)) for row in cursor.fetchall()]
+    return {'entries': entries}
+
+
 @view_config(route_name='detail', renderer='templates/detail.jinja2')
 def detail_view(request):
-    """return a list of all entries as dicts"""
-    db_id = request.matchdict['id']
-    print "id: " + db_id  # remove this later
+    """return a permalink for an entry"""
+    id = request.matchdict['id']
+    print "detail id: " + id  # remove this later
     cursor = request.db.cursor()
-    cursor.execute(SELECT_SINGLE_ENTRY, (db_id,))
+    cursor.execute(SELECT_SINGLE_ENTRY, (id,))
     keys = ('title', 'text', 'created')
     entries = [dict(zip(keys, row)) for row in cursor.fetchall()]
     return {'entries': entries}
@@ -180,7 +191,7 @@ def main():
     # secret value for session signing:
     secret = os.environ.get('JOURNAL_SESSION_SECRET', 'itsaseekrit')
     session_factory = SignedCookieSessionFactory(secret)
-    # secret value for auth tkt signing
+    # secret value for auth signing
     auth_secret = os.environ.get('JOURNAL_AUTH_SECRET', 'anotherseekrit')
     # configuration setup
     config = Configurator(
@@ -198,12 +209,9 @@ def main():
     config.add_route('add', '/add')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
-    config.add_route('detail', '/{id}')
-    #config.add_route('detail', '/detail')
-
+    config.add_route('detail', '/detail/{id}')
+    config.add_route('edit', '/edit/{id}')
     config.scan()
-
-    #<a href ="{{ request.route_url(entry.id)}}">
 
     # serve app
     app = config.make_wsgi_app()
