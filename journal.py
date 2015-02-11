@@ -107,6 +107,16 @@ def read_entries(request):
     return {'entries': entries}
 
 
+@view_config(route_name='detail', renderer='templates/detail.jinja2')
+def detail_view(request):
+    """return a list of all entries as dicts"""
+    cursor = request.db.cursor()
+    cursor.execute(DB_ENTRIES_LIST)
+    keys = ('id', 'title', 'text', 'created')
+    entries = [dict(zip(keys, row)) for row in cursor.fetchall()]
+    return {'entries': entries}
+
+
 def do_login(request):
     username = request.params.get('username', None)
     password = request.params.get('password', None)
@@ -181,6 +191,7 @@ def main():
     config.add_route('add', '/add')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
+    config.add_route('detail', '/detail')
     config.scan()
 
     # serve app

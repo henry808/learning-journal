@@ -15,14 +15,15 @@ from contextlib import closing
 
 TEST_DSN = 'dbname=test_learning_journal user=JustinKan'
 
+
 @step('given authorized user and homepage')
 def authorized_edit_entry(step):
     world.authorized = True
 
+
 @step('When on homepage')
 def on_homepage(step):
-    world.url = "http://127.0.0.1:5000/"
-    pass
+    world.url = "http://127.0..0.1:5000/"
 
 @step('Then I will see buttons')
 def check_for_button(step):
