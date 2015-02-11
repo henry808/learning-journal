@@ -21,7 +21,7 @@ def authorized_edit_entry(step):
 
 @step('When on homepage')
 def on_homepage(step):
-    world.url = 
+    world.url = "http://127.0.0.1:5000/"
     pass
 
 @step('Then I will see buttons')
@@ -73,4 +73,3 @@ def run_query(db, query, params=(), get_results=True):
     if get_results:
         results = cursor.fetchall()
     return results
->>>>>>> 83500b73b2825143e7d7418c11b9c30c27f2f1da
