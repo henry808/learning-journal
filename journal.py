@@ -3,6 +3,9 @@ import psycopg2
 import os
 import logging
 import datetime
+import markdown
+import pygments
+import jinja2
 from pyramid.config import Configurator
 from pyramid.session import SignedCookieSessionFactory
 from pyramid.view import view_config
@@ -42,8 +45,13 @@ SELECT_SINGLE_ENTRY = """
 SELECT id, title, text, created FROM entries WHERE id=%s;
 """
 
+
 logging.basicConfig()
 log = logging.getLogger(__file__)
+
+
+def mdown(text):
+    return markdown.markdown(text, extensions=['codehilite', 'fenced_code'])
 
 
 def connect_db(settings):
@@ -135,6 +143,8 @@ def read_entries(request):
     cursor.execute(DB_ENTRIES_LIST)
     keys = ('id', 'title', 'text', 'created')
     entries = [dict(zip(keys, row)) for row in cursor.fetchall()]
+    for entry in entries:
+        entry['text'] = mdown(entry['text'])
     return {'entries': entries}
 
 
@@ -159,6 +169,8 @@ def detail_view(request):
     cursor.execute(SELECT_SINGLE_ENTRY, (id,))
     keys = ('id', 'title', 'text', 'created')
     entries = [dict(zip(keys, row)) for row in cursor.fetchall()]
+    for entry in entries:
+        entry['text'] = mdown(entry['text'])
     return {'entries': entries}
 
 
@@ -240,6 +252,8 @@ def main():
     config.add_route('detail', '/detail/{id}')
     config.add_route('edit', '/edit/{id}')
     config.scan()
+
+    jinja2.filters.FILTERS['markdown'] = mdown
 
     # serve app
     app = config.make_wsgi_app()
