@@ -3,6 +3,7 @@
 {% block body %}
   {% if request.authenticated_userid %}
     <aside>
+    <h2>Add New Entry</h2>
     <form action="{{ request.route_url('add') }}" method="POST" class="add_entry">
       <div class="field">
         <label for="title">Title</label>
