@@ -40,6 +40,7 @@ DB_ENTRIES_LIST = """
 SELECT id, title, text, created FROM entries ORDER BY created DESC
 """
 
+# changed
 SELECT_SINGLE_ENTRY = """
 SELECT * FROM entries WHERE id=%s;
 """
@@ -131,10 +132,11 @@ def read_entries(request):
     return {'entries': entries}
 
 
+# changed
 @view_config(route_name='edit', renderer='templates/edit.jinja2')
 def edit(request):
     """return a list of all entries as dicts"""
-    entry = get_single_entry(request, id)
+    entry = get_single_entry(request)
 
     if request.method == 'POST':
         try:
@@ -151,9 +153,11 @@ def edit(request):
 @view_config(route_name='detail', renderer='templates/detail.jinja2')
 def detail_view(request):
     """return a permalink for an entry"""
-    return get_single_entry(request, id)
+    return get_single_entry(request)
 
-def get_single_entry(request, id):
+
+# added
+def get_single_entry(request):
     id = request.matchdict.get('id', -1)
     cursor = request.db.cursor()
     cursor.execute(SELECT_SINGLE_ENTRY, (id,))
@@ -235,6 +239,7 @@ def main():
     config.add_static_view('static', os.path.join(here, 'static'))
     config.add_route('home', '/')
     config.add_route('add', '/add')
+    # changed
     # config.add_route('edit_entry', '/edit_entry/{id}')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
