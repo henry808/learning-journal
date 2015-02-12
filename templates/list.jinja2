@@ -3,6 +3,7 @@
 {% block body %}
   {% if request.authenticated_userid %}
     <aside>
+    <h2>Add New Entry</h2>
     <form action="{{ request.route_url('add') }}" method="POST" class="add_entry">
       <div class="field">
         <label for="title">Title</label>
@@ -24,7 +25,7 @@
     <h3>{{ entry.title }}</h3>
     <p class="dateline">{{ entry.created.strftime('%b. %d, %Y') }}
     <div class="entry_body">
-      {{ entry.text|safe }}
+      {{ entry.text|markdown|safe }}
     </div>
     <a href ="{{request.route_url('detail', id=entry.id)}}">
       <button type="button">permalink</button>
