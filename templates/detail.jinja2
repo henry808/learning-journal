@@ -10,9 +10,9 @@
       {{ entry.text|safe }}
     </div>
     {% if request.authenticated_userid %}
-    <a href ="{{request.route_url('edit', id=entry.id)}}">
-      <button type="button">Edit</button>
-    </a>
+      <a href="{{request.route_url('edit', id=entry.id)}}">
+        <button type="button">Edit</button>
+      </a>
     {% endif %}
   </article>
   {% else %}
