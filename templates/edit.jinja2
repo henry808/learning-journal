@@ -4,7 +4,6 @@
   <h2>Edit</h2>
   {% if request.authenticated_userid %}
       <aside>
-      {% for entry in entries %}
       <form action="" method="POST" class="edit_entry">
         <div class="field">
           <label for="title">Title</label>
@@ -18,7 +17,6 @@
           <input type="submit" value="Share" name="Share"/>
         </div>
       </form>
-      {% endfor %}
       </aside>
   {% endif %}
 {% endblock %}
