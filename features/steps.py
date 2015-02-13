@@ -1,8 +1,9 @@
+# from lettuce import *
 from lettuce import step
 from lettuce import world
 from lettuce import before
 from lettuce import after
-
+# from journal import *
 from journal import main
 # from journal import edit_entry
 
@@ -14,6 +15,55 @@ from cryptacular.bcrypt import BCRYPTPasswordManager
 from contextlib import closing
 
 TEST_DSN = 'dbname=test_learning_journal user=JustinKan'
+
+"""
+
+# CREATE DB AND POPULATE
+@before.all
+def app():
+    from journal import *
+    from webtest import TestApp
+    import os
+
+    #set up and tear down a database
+    settings = {'db': TEST_DSN}
+    init_db(settings)
+
+# ADD AN ENTRY SO WE CAN TEST
+@before.each_feature    
+def add_entry(): 
+    # mock a request with a database attached
+    settings = db
+    req = testing.DummyRequest()
+    with closing(connect_db(settings)) as db:
+        req.db = db
+        req.exception = None
+        yield req
+
+        # after a test has run, we clear out entries for isolation
+        clear_entries(settings)
+    
+
+    os.environ['DATABASE_URL'] = TEST_DSN
+    app = main()
+    world.app = Testapp(app)
+
+@after.all
+def clean_up_db(settings):
+    with closing(connect_db(settings)) as db:
+        db.cursor().execute("DROP TABLE entries")
+        db.commit()
+
+@step(r'I go to the URL or home "(.*)"')
+def access_url(step, url):
+    response = world.browser.get(url)
+    world.dom = html.fromstring(response.content)
+
+@step(r'I see the permalink button "(.*)"')
+def see_button(step, text):
+    button = world.dom.cssselect('button')[0]
+    assert button.type == text
+"""
 
 
 @step('given authorized user and homepage')
