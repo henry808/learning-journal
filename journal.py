@@ -10,7 +10,7 @@ from pyramid.session import SignedCookieSessionFactory
 from pyramid.view import view_config
 from pyramid.events import NewRequest, subscriber
 from waitress import serve
-from contextlib import closing 
+from contextlib import closing
 from pyramid.httpexceptions import HTTPFound, HTTPInternalServerError
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
@@ -161,11 +161,10 @@ def get_single_entry(request, mark_down=False):
     cursor = request.db.cursor()
     cursor.execute(SELECT_SINGLE_ENTRY, (id,))
     keys = ('id', 'title', 'text', 'created')
-    entries = [dict(zip(keys, cursor.fetchone()))]
+    entry = dict(zip(keys, cursor.fetchone()))
     if mark_down:
-        for entry in entries:
-            entry['text'] = mdown(entry['text'])
-    return {'entries': entries}
+        entry['text'] = mdown(entry['text'])
+    return {'entries': [entry]}
 
 
 def do_login(request):

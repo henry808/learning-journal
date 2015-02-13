@@ -1,4 +1,5 @@
 import datetime
+import os
 # from lettuce import *
 from lettuce import step
 from lettuce import world
@@ -43,7 +44,7 @@ def given_the_edit_page_and_id_of_1(step, id):
     assert False, 'This step must be implemented'
 
 
-@step(u'When I finish loading the edit page the url is (\S+)')
+@step(u'When I finish loading the edit page the url is (\w+)')
 def when_i_finish_loading_the_edit_page_the_url_is_edit_1(step, url_id):
     assert test == url_id
     assert False, 'This step must be implemented'
@@ -77,6 +78,12 @@ def setup_db():
         db.cursor().execute(DB_SCHEMA)
         db.commit()
     world.settings = settings
+
+    # setup test app
+    app = main()
+    world.app = TestApp(app)
+    login_data = {'username': 'admin', 'password': 'secret'}
+    world.app.post('/login', params=login_data)
 
 
 @after.all
