@@ -33,7 +33,7 @@ INSERT INTO entries (title, text, created) VALUES (%s, %s, %s)
 """
 
 UPDATE_ENTRY = """
-UPDATE entries SET (title, text, created) = (%s, %s, %s) WHERE id=%s
+UPDATE entries SET (title, text) = (%s, %s) WHERE id=%s
 """
 
 DB_ENTRIES_LIST = """
@@ -99,8 +99,7 @@ def close_connection(request):
 def update_entry(request, id):
     title = request.params.get('title', None)
     text = request.params.get('text', None)
-    created = datetime.datetime.utcnow()
-    request.db.cursor().execute(UPDATE_ENTRY, [title, text, created, id])
+    request.db.cursor().execute(UPDATE_ENTRY, [title, text, id])
 
 
 def write_entry(request):
@@ -153,19 +152,21 @@ def edit(request):
 @view_config(route_name='detail', renderer='templates/detail.jinja2')
 def detail_view(request):
     """return a permalink for an entry"""
-    return get_single_entry(request)
+    return get_single_entry(request, True)
 
 
 # added
-def get_single_entry(request):
+def get_single_entry(request, mark_down=False):
     id = request.matchdict.get('id', -1)
     cursor = request.db.cursor()
     cursor.execute(SELECT_SINGLE_ENTRY, (id,))
     keys = ('id', 'title', 'text', 'created')
-    entries = [dict(zip(keys, row)) for row in cursor.fetch()]
-    for entry in entries:
-        entry['text'] = mdown(entry['text'])
+    entries = [dict(zip(keys, cursor.fetchone()))]
+    if mark_down:
+        for entry in entries:
+            entry['text'] = mdown(entry['text'])
     return {'entries': entries}
+
 
 def do_login(request):
     username = request.params.get('username', None)
@@ -239,8 +240,6 @@ def main():
     config.add_static_view('static', os.path.join(here, 'static'))
     config.add_route('home', '/')
     config.add_route('add', '/add')
-    # changed
-    # config.add_route('edit_entry', '/edit_entry/{id}')
     config.add_route('login', '/login')
     config.add_route('logout', '/logout')
     config.add_route('detail', '/detail/{id:\d+}')

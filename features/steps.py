@@ -1,3 +1,4 @@
+import datetime
 # from lettuce import *
 from lettuce import step
 from lettuce import world
@@ -5,6 +6,8 @@ from lettuce import before
 from lettuce import after
 # from journal import *
 from journal import main
+from journal import INSERT_ENTRY
+from test_journal import run_query
 # from journal import edit_entry
 
 from webtest import TestApp
@@ -16,111 +19,87 @@ from contextlib import closing
 
 TEST_DSN = 'dbname=test_learning_journal user=JustinKan'
 
-"""
-
-# CREATE DB AND POPULATE
-@before.all
-def app():
-    from journal import *
-    from webtest import TestApp
-    import os
-
-    #set up and tear down a database
-    settings = {'db': TEST_DSN}
-    init_db(settings)
-
-# ADD AN ENTRY SO WE CAN TEST
-@before.each_feature    
-def add_entry(): 
-    # mock a request with a database attached
-    settings = db
-    req = testing.DummyRequest()
-    with closing(connect_db(settings)) as db:
-        req.db = db
-        req.exception = None
-        yield req
-
-        # after a test has run, we clear out entries for isolation
-        clear_entries(settings)
-    
-
-    os.environ['DATABASE_URL'] = TEST_DSN
-    app = main()
-    world.app = Testapp(app)
-
-@after.all
-def clean_up_db(settings):
-    with closing(connect_db(settings)) as db:
-        db.cursor().execute("DROP TABLE entries")
-        db.commit()
-
-@step(r'I go to the URL or home "(.*)"')
-def access_url(step, url):
-    response = world.browser.get(url)
-    world.dom = html.fromstring(response.content)
-
-@step(r'I see the permalink button "(.*)"')
-def see_button(step, text):
-    button = world.dom.cssselect('button')[0]
-    assert button.type == text
-"""
-
-
-@step('given authorized user and homepage')
-def authorized_edit_entry(step):
-    world.authorized = True
-
-
-@step('When on homepage')
-def on_homepage(step):
-    world.url = "http://127.0..0.1:5000/"
-
-@step('Then I will see buttons')
-def check_for_button(step):
-    assert world.url == '/'
 
 
 
+# @step('given authorized user and homepage')
+# def authorized_edit_entry(step):
+#     world.authorized = True
+
+
+# @step('When on homepage')
+# def on_homepage(step):
+#     world.url = "http://127.0..0.1:5000/"
+
+
+# @step('Then I will see buttons')
+# def check_for_button(step):
+#     assert world.url == '/'
+
+
+@step(u'Given the edit page and id of (\d+)')
+def given_the_edit_page_and_id_of_1(step, id):
+    world.id = id
+    assert False, 'This step must be implemented'
+
+
+@step(u'When I finish loading the edit page the url is (\S+)')
+def when_i_finish_loading_the_edit_page_the_url_is_edit_1(step, url_id):
+    assert test == url_id
+    assert False, 'This step must be implemented'
+
+
+@step(u'Then I see the text for id = 1')
+def then_i_see_the_text_for_id_1(step):
+    assert False, 'This step must be implemented'
+
+
+@step(u'Given the first entry of id 1')
+def given_the_first_entry_of_id_1(step):
+    assert False, 'This step must be implemented'
+
+
+@step(u'When I finish editing the text and click submit')
+def when_i_finish_editing_the_text_and_click_submit(step):
+    assert False, 'This step must be implemented'
+
+
+@step(u'Then I see the text for id = 1 in homepage')
+def then_i_see_the_text_for_id_1_in_homepage(step):
+    assert False, 'This step must be implemented'
 
 
 @before.all
 def setup_db():
     """set up database"""
     settings = {'db': TEST_DSN}
-    init_db(settings)
+    with closing(connect_db(settings)) as db:
+        db.cursor().execute(DB_SCHEMA)
+        db.commit()
+    world.settings = settings
 
-    return settings
 
 @after.all
 def teardown_db(total):
     """tear down a database"""
-    settings = {'db': TEST_DSN}
-
-    clear_db(settings)
-
-def init_db(settings):
-    with closing(connect_db(settings)) as db:
-        db.cursor().execute(DB_SCHEMA)
-        db.commit()
-
-
-def clear_db(settings):
-    with closing(connect_db(settings)) as db:
+    with closing(connect_db(world.settings)) as db:
         db.cursor().execute("DROP TABLE entries")
         db.commit()
 
 
-def clear_entries(settings):
-    with closing(connect_db(settings)) as db:
-        db.cursor().execute("DELETE FROM entries")
+
+@before.each_scenario
+def make_entry(scenario):
+    """mock a request with a database attached"""
+    now = datetime.datetime.utcnow()
+    expected = ('Test Title', 'Test Text', now)
+    with closing(connect_db(world.settings)) as db:
+        run_query(db, INSERT_ENTRY, expected, False)
         db.commit()
 
 
-def run_query(db, query, params=(), get_results=True):
-    cursor = db.cursor()
-    cursor.execute(query, params)
-    db.commit()
-    results = None
-    if get_results:
-        results = cursor.fetchall()
-    return results
+@after.each_scenario
+def clear_entries_after(sc):
+    with closing(connect_db(world.settings)) as db:
+        db.cursor().execute("DELETE FROM entries")
+        db.commit()
