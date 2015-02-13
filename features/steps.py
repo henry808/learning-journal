@@ -38,35 +38,48 @@ TEST_DSN = 'dbname=test_learning_journal user=JustinKan'
 #     assert world.url == '/'
 
 
-@step(u'Given the edit page and id of (\d+)')
-def given_the_edit_page_and_id_of_1(step, id):
-    world.id = id
+@step(u'Given an entry with      print(\'([^\']*)\')')
+def given_an_entry_with_print_group1(step, group1):
     assert False, 'This step must be implemented'
 
 
-@step(u'When I finish loading the edit page the url is (\w+)')
-def when_i_finish_loading_the_edit_page_the_url_is_edit_1(step, url_id):
-    assert test == url_id
+@step(u'When I go to the detail page with id2')
+def when_i_go_to_the_detail_page_with_id2(step):
     assert False, 'This step must be implemented'
 
 
-@step(u'Then I see the text for id = 1')
-def then_i_see_the_text_for_id_1(step):
+@step(u'Then I will see the tag for .codehilite')
+def then_i_will_see_the_tag_for_codehilite(step):
     assert False, 'This step must be implemented'
 
 
-@step(u'Given the first entry of id 1')
-def given_the_first_entry_of_id_1(step):
+@step(u'Given the edit page and id of 1')
+def given_the_edit_page_and_id_of_1(step):
     assert False, 'This step must be implemented'
 
 
-@step(u'When I finish editing the text and click submit')
-def when_i_finish_editing_the_text_and_click_submit(step):
+@step(u'When I finish loading the edit page the url is edit/1')
+def when_i_finish_loading_the_edit_page_the_url_is_edit_1(step):
     assert False, 'This step must be implemented'
 
 
-@step(u'Then I see the text for id = 1 in homepage')
-def then_i_see_the_text_for_id_1_in_homepage(step):
+@step(u'Then I see the text for id 1 in the text box')
+def then_i_see_the_text_for_id_1_in_the_text_box(step):
+    assert False, 'This step must be implemented'
+
+
+@step(u'Given the edit page of id of 1')
+def given_the_edit_page_of_id_of_1(step):
+    assert False, 'This step must be implemented'
+
+
+@step(u'When I change the text to \'([^\']*)\' and submit')
+def when_i_change_the_text_to_group1_and_submit(step, group1):
+    assert False, 'This step must be implemented'
+
+
+@step(u'Then I see \'([^\']*)\' in homepage')
+def then_i_see_group1_in_homepage(step, group1):
     assert False, 'This step must be implemented'
 
 
