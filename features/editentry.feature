@@ -9,4 +9,4 @@ Feature: Edit Entry
     Scenario: Finished editing and clicked submit
         Given the edit page of id of 1
         When I change the text to 'Edit' and submit
-        Then I see 'Edit' in homepage
+        Then I see 'Edited now' in homepage

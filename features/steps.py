@@ -40,32 +40,61 @@ def then_i_will_see_the_tag_for_codehilite(step):
 # FEATURE: EDIT ENTRY
 @step(u'Given the edit page and id of 1')
 def given_the_edit_page_and_id_of_1(step):
-    assert False, 'This step must be implemented'
+    world.response = world.app.get('/edit/1')
+    assert world.response.status_code == 200
 
 
-@step(u'When I finish loading the edit page the url is edit/1')
+@step(u'When I finish loading the edit page the url is edit//1')
 def when_i_finish_loading_the_edit_page_the_url_is_edit_1(step):
-    assert False, 'This step must be implemented'
+    assert True
+    # add this later (pull this info out of headers)
+    print world.response.headers
+    # assert world.response.  == '/edit/1'
 
 
 @step(u'Then I see the text for id 1 in the text box')
 def then_i_see_the_text_for_id_1_in_the_text_box(step):
-    assert False, 'This step must be implemented'
+    assert 'Test' in world.response.body
 
 
 @step(u'Given the edit page of id of 1')
 def given_the_edit_page_of_id_of_1(step):
-    assert False, 'This step must be implemented'
+    world.response = world.app.get('/edit/1')
+    assert world.response.status_code == 200
 
 
-@step(u"When I change the text to 'Edit' and submit")
+@step(u"When I change the text to 'Edit now' and submit")
 def change_text_and_submit(step):
-    assert False, 'This step must be implemented'
+    world.response = world.app.get('/edit/1')
+    assert world.response.status_code == 200
+    # print world.response
+    print world.response.forms
+    # world.app.forms.submit()
+    # world.response = world.app.post('/edit/1', params=data, status='3*')
+    assert world.response.status_code == 200
 
 
-@step(u"Then I see 'Edit' in homepage")
+@step(u"Then I see 'Edited now' in homepage")
 def edit_shows_up(step):
-    assert False, 'This step must be implemented'
+    world.response = world.app.get('/')
+    assert world.response.status_code == 200
+    assert 'Edited now' in world.response.body
+
+
+# FEATURE: HOMEPAGE
+@step(u'Given the homepage')
+def given_the_homepage(step):
+    world.response = world.app.get('/')
+
+
+@step(u'When I navigate to index.html')
+def when_i_navigate_to_index_html(step):
+    assert world.response.status_code == 200
+
+
+@step(u'Then I see the homepage')
+def then_i_see_the_homepage(step):
+    assert 'My Python Journal' in world.response.body
 
 
 # FEATURE: MARKDOWN
@@ -82,6 +111,8 @@ def when_i_go_to_the_detail_page_of_id_2(step):
 @step(u'Then I see a H1 tag')
 def then_i_see_a_h1_tag(step):
     assert False, 'This step must be implemented'
+
+
 # FEATURE: PERMALINK
 @step(u'Given entry with id 1')
 def given_entry_with_id_1(step):
@@ -137,35 +168,40 @@ def then_i_see_that_it_is_detail_1_and_the_text_for_id_1_displays(step):
 #     # assert 'class="codehilite"' in response.body
 
 
-# @before.all
-# def setup_db():
-#     """set up database"""
-#     settings = {'db': TEST_DSN}
-#     with closing(connect_db(settings)) as db:
-#         db.cursor().execute(DB_SCHEMA)
-#         db.commit()
-#     world.settings = settings
+@before.all
+def setup_db():
+    """set up test database"""
+    # set up test database
+    settings = {'db': TEST_DSN}
+    with closing(connect_db(settings)) as db:
+        db.cursor().execute(DB_SCHEMA)
+        db.commit()
+    world.settings = settings
 
-#     # setup test app
-#     app = main()
-#     world.app = TestApp(app)
-#     login_data = {'username': 'admin', 'password': 'secret'}
-#     world.app.post('/login', params=login_data)
+    # setup test app
+    os.environ['DATABASE_URL'] = TEST_DSN
+    app = main()
+    world.app = TestApp(app)
+    login_data = {'username': 'admin', 'password': 'secret'}
+    world.app.post('/login', params=login_data)
 
-
-# @after.all
-# def teardown_db(total):
-#     """tear down a database"""
-#     with closing(connect_db(world.settings)) as db:
-#         db.cursor().execute("DROP TABLE entries")
-#         db.commit()
+    # add initial entry
+    world.make_entry('Test Title', 'Test Text')
 
 
-# @world.absorb
-# def make_entry(title, text):
-#     data = {'title': title, 'text': text}
-#     response = world.app.post('/add', params=data, status='3*')
-#     return response
+@after.all
+def teardown_db(total):
+    """tear down a database"""
+    with closing(connect_db(world.settings)) as db:
+        db.cursor().execute("DROP TABLE entries")
+        db.commit()
+
+
+@world.absorb
+def make_entry(title, text):
+    data = {'title': title, 'text': text}
+    response = world.app.post('/add', params=data, status='3*')
+    return response
 
 
 # @before.each_scenario
@@ -177,11 +213,11 @@ def then_i_see_that_it_is_detail_1_and_the_text_for_id_1_displays(step):
 #         run_query(db, INSERT_ENTRY, expected, False)
 #         db.commit()
 
-#     world.make_entry('Test Title', 'Test Text')
+    # world.make_entry('Test Title 2', 'Test Text')
 
 
 # @after.each_scenario
-# def clear_entries_after(sc):
+# def clear_entries_after(scenario):
 #     with closing(connect_db(world.settings)) as db:
 #         db.cursor().execute("DELETE FROM entries")
 #         db.commit()
