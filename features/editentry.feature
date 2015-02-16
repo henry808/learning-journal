@@ -8,5 +8,5 @@ Feature: Edit Entry
 
     Scenario: Finished editing and clicked submit
         Given the edit page of id of 1
-        When I change the text to 'Edit' and submit
+        When I change the text to 'Edit now' and submit
         Then I see 'Edited now' in homepage

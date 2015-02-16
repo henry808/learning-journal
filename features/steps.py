@@ -44,11 +44,12 @@ def given_the_edit_page_and_id_of_1(step):
     assert world.response.status_code == 200
 
 
-@step(u'When I finish loading the edit page the url is edit//1')
+@step(u'When I finish loading the edit page the url is edit/1')
 def when_i_finish_loading_the_edit_page_the_url_is_edit_1(step):
-    assert True
-    # add this later (pull this info out of headers)
-    print world.response.headers
+    # checks to see if we are in edit page
+    assert '<h2>Edit</h2>' in world.response.body
+    assert 'Test Text' in world.response.body
+    # add something that checks the url later (pull this info out of headers)
     # assert world.response.  == '/edit/1'
 
 
@@ -61,24 +62,41 @@ def then_i_see_the_text_for_id_1_in_the_text_box(step):
 def given_the_edit_page_of_id_of_1(step):
     world.response = world.app.get('/edit/1')
     assert world.response.status_code == 200
+    # checks to see if we are in edit page
+    assert '<h2>Edit</h2>' in world.response.body
+    assert 'Test Text' in world.response.body
 
 
 @step(u"When I change the text to 'Edit now' and submit")
 def change_text_and_submit(step):
     world.response = world.app.get('/edit/1')
     assert world.response.status_code == 200
+    # check to make sure text contains 'Test Text' before
+    assert world.response.form['text'].value == 'Test Text'
+    world.response.form['text'] = 'Edit now'
+    # check to make sure text contains 'Edit now' after
+    assert world.response.form['text'].value == 'Edit now'
+
+    world.response = world.response.form.submit()
+
+    # used these lines for debugging:
+
     # print world.response
-    print world.response.forms
-    # world.app.forms.submit()
-    # world.response = world.app.post('/edit/1', params=data, status='3*')
-    assert world.response.status_code == 200
+    # print "form: " + str(world.response.form.fields.values())
+    # print "form: " + str(world.response.form.method)
+    # print "body: " + str(world.response.body)
 
 
 @step(u"Then I see 'Edited now' in homepage")
 def edit_shows_up(step):
+    # check to see if we were redirected
+    assert world.response.status_code == 302
+    # check to see if we are in homepage (not written)
+
     world.response = world.app.get('/')
-    assert world.response.status_code == 200
-    assert 'Edited now' in world.response.body
+    assert 'My Python Journal' in world.response.body
+    # check to see if 'Edited now' is in homepage
+    assert 'Edit now' in world.response.body
 
 
 # FEATURE: HOMEPAGE
