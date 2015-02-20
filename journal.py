@@ -66,8 +66,10 @@ SELECT * FROM entries WHERE id=%s;
 
 # MARKDOWN FILTER
 def mdown(text):
+    if isinstance(text, str):
+        text = text.decode('utf-8')
     return markdown.markdown(
-        text.decode('utf-8'), extensions=['codehilite', 'fenced_code'])
+        text, extensions=['codehilite', 'fenced_code'])
 
 
 # DBASE SETUP AND TEARDOWN
@@ -134,7 +136,7 @@ def write_entry(request):
 
 
 def get_single_entry(request, mark_down=False):
-    """get single entry - returns markdown if mark_down set to True"""
+    """get single entry from dbase- returns markdown if mark_down set to True"""
     id = request.matchdict.get('id', -1)
     cursor = request.db.cursor()
     cursor.execute(SELECT_SINGLE_ENTRY, (id,))
