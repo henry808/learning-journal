@@ -66,6 +66,8 @@ SELECT * FROM entries WHERE id=%s;
 
 # MARKDOWN FILTER
 def mdown(text):
+    print('*'*20)
+    print(type(text))
     return markdown.markdown(text, extensions=['codehilite', 'fenced_code'])
 
 
