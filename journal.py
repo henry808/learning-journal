@@ -21,6 +21,23 @@ from pyramid.security import remember, forget
 
 here = os.path.dirname(os.path.abspath(__file__))
 
+
+# LOGIN TO WEBSITE
+def do_login(request):
+    username = request.params.get('username', None)
+    password = request.params.get('password', None)
+    if not (username and password):
+        raise ValueError('both username and password are required')
+
+    settings = request.registry.settings
+    manager = BCRYPTPasswordManager()
+    if username == settings.get('auth.username', ''):
+        hashed = settings.get('auth.password', '')
+        return manager.check(hashed, password)
+
+
+# SQL COMMANDS
+
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS entries (
     id serial PRIMARY KEY,
@@ -47,12 +64,14 @@ SELECT * FROM entries WHERE id=%s;
 """
 
 
-logging.basicConfig()
-log = logging.getLogger(__file__)
-
-
+# MARKDOWN FILTER
 def mdown(text):
     return markdown.markdown(text, extensions=['codehilite', 'fenced_code'])
+
+
+# DBASE SETUP AND TEARDOWN
+logging.basicConfig()
+log = logging.getLogger(__file__)
 
 
 def connect_db(settings):
@@ -97,6 +116,7 @@ def close_connection(request):
         request.db.close()
 
 
+# DBASE ENTRIES MANIPULATION
 def update_entry(request, id):
     """update an entry already in the database"""
     title = request.params.get('title', None)
@@ -112,6 +132,19 @@ def write_entry(request):
     request.db.cursor().execute(INSERT_ENTRY, [title, text, created])
 
 
+def get_single_entry(request, mark_down=False):
+    """get single entry - returns markdown if mark_down set to True"""
+    id = request.matchdict.get('id', -1)
+    cursor = request.db.cursor()
+    cursor.execute(SELECT_SINGLE_ENTRY, (id,))
+    keys = ('id', 'title', 'text', 'created')
+    entry = dict(zip(keys, cursor.fetchone()))
+    if mark_down:
+        entry['text'] = mdown(entry['text'])
+    return {'entry': entry}
+
+
+# ADD ENTRY VIEW
 @view_config(route_name='add', request_method='POST')
 def add_entry(request):
     try:
@@ -122,7 +155,7 @@ def add_entry(request):
     return HTTPFound(request.route_url('home'))
 
 
-# HOME PAGE
+# HOME PAGE VIEW
 @view_config(route_name='home', renderer='templates/list.jinja2')
 def read_entries(request):
     """return a list of all entries as dicts"""
@@ -135,7 +168,7 @@ def read_entries(request):
     return {'entries': entries}
 
 
-# EDIT ENTRY PAGE
+# EDIT ENTRY PAGE VIEW
 @view_config(route_name='edit', renderer='templates/edit.jinja2')
 def edit(request):
     """view for edit single entry"""
@@ -151,38 +184,14 @@ def edit(request):
     return get_single_entry(request)
 
 
-# DETAIL PAGE
+# DETAIL PAGE VIEW
 @view_config(route_name='detail', renderer='templates/detail.jinja2')
 def detail_view(request):
     """view for entry (permalink for an entry)."""
     return get_single_entry(request, True)
 
 
-def get_single_entry(request, mark_down=False):
-    """get single entry - returns markdown if mark_down set to True"""
-    id = request.matchdict.get('id', -1)
-    cursor = request.db.cursor()
-    cursor.execute(SELECT_SINGLE_ENTRY, (id,))
-    keys = ('id', 'title', 'text', 'created')
-    entry = dict(zip(keys, cursor.fetchone()))
-    if mark_down:
-        entry['text'] = mdown(entry['text'])
-    return {'entry': entry}
-
-
-def do_login(request):
-    username = request.params.get('username', None)
-    password = request.params.get('password', None)
-    if not (username and password):
-        raise ValueError('both username and password are required')
-
-    settings = request.registry.settings
-    manager = BCRYPTPasswordManager()
-    if username == settings.get('auth.username', ''):
-        hashed = settings.get('auth.password', '')
-        return manager.check(hashed, password)
-
-
+# LOGIN VIEW
 @view_config(route_name='login', renderer="templates/login.jinja2")
 def login(request):
     """authenticate a user by username/password"""
@@ -203,6 +212,7 @@ def login(request):
     return {'error': error, 'username': username}
 
 
+# LOGOUT VIEW
 @view_config(route_name='logout')
 def logout(request):
     headers = forget(request)
