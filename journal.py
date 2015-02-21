@@ -142,6 +142,8 @@ def get_single_entry(request, mark_down=False):
     cursor.execute(SELECT_SINGLE_ENTRY, (id,))
     keys = ('id', 'title', 'text', 'created')
     entry = dict(zip(keys, cursor.fetchone()))
+    if isinstance(entry['text'], str):
+        entry['text'] = entry['text'].decode('utf-8')
     if mark_down:
         entry['text'] = mdown(entry['text'])
     return {'entry': entry}
